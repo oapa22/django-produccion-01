@@ -7,7 +7,7 @@
 * Se necesita un computador con las siguientes características:
 	* Sistema operativo GNU/Linux **UBUNTU** 18.04 o 20.04
 	* Lenguaje de programación Python (3.7, 3.8, 3.9)
-	* Librerías de pyhton: django, corsheaders, rest_framework, gunicorn; (se pueden instalar a través de pip install). 
+	* Librerías de pyhton: django, django-cors-headers, rest_framework, gunicorn; (se pueden instalar a través de pip install). 
 	* Servidor Web - nginx
 	
 ## Proceso 
@@ -19,7 +19,7 @@ Se asume que se tiene un proyecto de django funcional. Se puede comprobar el fun
 1. Instalar la librería gunicorn (pip install gunicorn)
 2. Agregar la variable **ALLOWED_HOSTS**  con algunas direcciones en el archivo **settings.py** del proyecto de django; que permitan acceder desde gunicorn y luego desde el servidor web.
 ```
-ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.1"] 	 
+ALLOWED_HOSTS = ["0.0.0.0", "127.0.0.0", "127.0.0.1", "localhost"] 	  
 ```
 2.1 Agregar en el **settings.py** la variable:
 ```
@@ -60,7 +60,6 @@ Es momento de iniciar el proceso de enlazar el servidor nginx mediante gunicorn 
 2.1. Nombre del archivo **proyecto01.service** . Donde proyecto01 es un nombre cualquiera.
 2.2. En el archivo agregar la siguiente información
 ```
-
 [Unit]
 # metadatos necesarios
 Description=gunicorn daemon
@@ -68,20 +67,20 @@ After=network.target
 
 [Service]
 # usuario del sistema operativo que ejecutará el proceso
-User=usuario-sistema-operativo
+User=oliver2002
 # el grupo del sistema operativo que permite la comunicación a desde el servidor web-nginx con gunicorn. No se debe cambiar el valor
 Group=www-data
 
 # a través de la variable WorkingDirectory se indica la dirección absoluta del proyecto de Django
-WorkingDirectory=/home/usuario-sistema/carpeta/proyectos/nombre-proyecto
+WorkingDirectory=/home/oliver2002/Documents/proyectoUno
 
 # En Environment se indica el path de python
 # Ejemplo 1: /usr/bin/python3.9
 # Ejemplo 2: (Opcional, con el uso de entornos virtuales) /home/usuario/entornos/entorno01/bin
-Environment="PATH=agregar-path-python"
+Environment="PATH=/home/oliver2002/Documents/OliverPinos/environtments/entorno2bim/bin/python3.10"
 
 # Detallar el comando para iniciar el servicio
-ExecStart=path-python/bin/gunicorn --workers 3 --bind unix:application.sock -m 007 proyectoDjango.wsgi:application
+ExecStart=/home/oliver2002/Documents/OliverPinos/environtments/entorno2bim/bin/gunicorn --workers 3 --bind unix:application.sock -m 007 proyectoUno.wsgi:application
 
 # Donde: aplicacion.sock es el nombre del archivo que se debe crear en el directorio del proyecto; proyectoDjango el nombre del proyecto que se intenta vincular con nginx.
 # La expresión /bin/gunicorn no se debe modificar.
@@ -132,16 +131,15 @@ server {
     
     location / {
         include proxy_params;
-        proxy_pass http://unix:/ruta/al/archivo/sock/application.sock;
+        proxy_pass http://unix:/home/oliver2002/Documents/proyectoUno/application.sock;
     }
 
     
     location /static/ {
-        root /ruta/a/la/carpeta/staticos/del/proyecto-django;
+        root /home/oliver2002/Documents/proyectoUno/;
     }
 
 }
-
 ```
 3) Iniciar un enlace simbólico del archivo creado en el directorio sites-available.
 
